@@ -32,9 +32,9 @@ class TJsonProtocol extends TProtocol {
 
   static const Utf8Codec utf8Codec = Utf8Codec();
 
-  _BaseContext _context;
-  _BaseContext _rootContext;
-  _LookaheadReader _reader;
+  late _BaseContext _context;
+  late _BaseContext _rootContext;
+  late _LookaheadReader _reader;
 
   final List<_BaseContext> _contextStack = [];
   final Uint8List _tempBuffer = Uint8List(4);
@@ -418,7 +418,7 @@ class TJsonProtocol extends TProtocol {
       Uint8List bytes = _readJsonString(skipContext: true);
       double d;
       try {
-        d = double.tryParse(utf8Codec.decode(bytes));
+        d = double.parse(utf8Codec.decode(bytes));
       } catch (_) {
         throw TProtocolError(TProtocolErrorType.INVALID_DATA,
             "Bad data encounted in numeric data");
@@ -626,7 +626,7 @@ class _Constants {
   static final Uint8List LBRACKET_BYTES = Uint8List.fromList('['.codeUnits);
   static final Uint8List RBRACKET_BYTES = Uint8List.fromList(']'.codeUnits);
   static final Uint8List QUOTE_BYTES = Uint8List.fromList('"'.codeUnits);
-  static final Uint8List BACKSLASH_BYTES = Uint8List.fromList(r'\'.codeUnits);
+  static final Uint8List BACKSLASH_BYTES = Uint8List.fromList('\\'.codeUnits);
 
   static final ESCSEQ_BYTES = Uint8List.fromList(r'\u00'.codeUnits);
 
@@ -674,8 +674,7 @@ class _Constants {
       throw TProtocolError(
           TProtocolErrorType.NOT_IMPLEMENTED, "Unrecognized type");
     }
-
-    return _TYPE_ID_TO_NAME_BYTES[typeId];
+    return _TYPE_ID_TO_NAME_BYTES[typeId]!;
   }
 
   static final Map<String, int> _NAME_TO_TYPE_ID = Map.unmodifiable({
@@ -698,8 +697,7 @@ class _Constants {
       throw TProtocolError(
           TProtocolErrorType.NOT_IMPLEMENTED, "Unrecognized type");
     }
-
-    return _NAME_TO_TYPE_ID[name];
+    return _NAME_TO_TYPE_ID[name]!;
   }
 
   static final Set<int> _JSON_NUMERICS = Set.from([

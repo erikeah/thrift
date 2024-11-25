@@ -27,7 +27,7 @@ import 'package:thrift/thrift.dart';
 void main() {
   final message = TMessage('my message', TMessageType.ONEWAY, 123);
 
-  TProtocol protocol;
+  late TProtocol protocol;
 
   Primitive getPrimitive(int tType) {
     switch (tType) {

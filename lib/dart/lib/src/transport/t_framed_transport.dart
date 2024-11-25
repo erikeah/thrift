@@ -29,15 +29,13 @@ class TFramedTransport extends TBufferedTransport {
   int _receivedHeaderBytes = 0;
 
   int _bodySize = 0;
-  Uint8List _body;
+  late Uint8List _body;
   int _receivedBodyBytes = 0;
 
-  Completer<Uint8List> _frameCompleter;
+  Completer<Uint8List> _frameCompleter = Completer<Uint8List>();
 
   TFramedTransport(TTransport transport) : _transport = transport {
-    if (transport == null) {
-      throw ArgumentError.notNull("transport");
-    }
+    _body = Uint8List(_bodySize);
   }
 
   @override
@@ -127,13 +125,13 @@ class TFramedTransport extends TBufferedTransport {
       var body = _body;
 
       _bodySize = 0;
-      _body = null;
+      _body = Uint8List(_bodySize);
       _receivedBodyBytes = 0;
 
       _setReadBuffer(body);
 
       var completer = _frameCompleter;
-      _frameCompleter = null;
+      _frameCompleter = Completer<Uint8List>();
       completer.complete(Uint8List(0));
     } else {
       _registerForReadableBytes();
@@ -165,9 +163,9 @@ class TFramedTransport extends TBufferedTransport {
 
       _receivedHeaderBytes = 0;
       _bodySize = 0;
-      _body = null;
+      _body = Uint8List(_bodySize);
       _receivedBodyBytes = 0;
-      _frameCompleter = null;
+      _frameCompleter = Completer<Uint8List>();
 
       completer.completeError(e);
     });
