@@ -69,7 +69,7 @@ abstract class TSocketTransport extends TBufferedTransport {
 /// NOTE: This transport expects a single threaded server, as it will process
 /// responses in FIFO order.
 class TClientSocketTransport extends TSocketTransport {
-  final List<Completer<Uint8List>> _completers = [];
+  final List<Completer<dynamic>> _completers = [];
 
   TClientSocketTransport(TSocket socket) : super(socket);
 
@@ -80,7 +80,7 @@ class TClientSocketTransport extends TSocketTransport {
     // Use a sync completer to ensure that the buffer can be read immediately
     // after the read buffer is set, and avoid a race condition where another
     // response could overwrite the read buffer.
-    var completer = Completer<Uint8List>.sync();
+    var completer = Completer<dynamic>.sync();
     _completers.add(completer);
 
     if (bytes.lengthInBytes > 0) {

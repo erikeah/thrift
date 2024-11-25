@@ -113,7 +113,7 @@ class TBinaryProtocol extends TProtocol {
   void writeSetEnd() {}
 
   @override
-  void writeBool(bool b) {
+  void writeBool(bool? b) {
     if (b == null) b = false;
     writeByte(b ? 1 : 0);
   }
@@ -121,7 +121,7 @@ class TBinaryProtocol extends TProtocol {
   final ByteData _byteOut = ByteData(1);
 
   @override
-  void writeByte(int byte) {
+  void writeByte(int? byte) {
     if (byte == null) byte = 0;
     _byteOut.setUint8(0, byte);
     transport.write(_byteOut.buffer.asUint8List(), 0, 1);
@@ -130,7 +130,7 @@ class TBinaryProtocol extends TProtocol {
   final ByteData _i16Out = ByteData(2);
 
   @override
-  void writeI16(int i16) {
+  void writeI16(int? i16) {
     if (i16 == null) i16 = 0;
     _i16Out.setInt16(0, i16);
     transport.write(_i16Out.buffer.asUint8List(), 0, 2);
@@ -139,7 +139,7 @@ class TBinaryProtocol extends TProtocol {
   final ByteData _i32Out = ByteData(4);
 
   @override
-  void writeI32(int i32) {
+  void writeI32(int? i32) {
     if (i32 == null) i32 = 0;
     _i32Out.setInt32(0, i32);
     transport.write(_i32Out.buffer.asUint8List(), 0, 4);
@@ -148,7 +148,7 @@ class TBinaryProtocol extends TProtocol {
   final Uint8List _i64Out = Uint8List(8);
 
   @override
-  void writeI64(int i64) {
+  void writeI64(int? i64) {
     if (i64 == null) i64 = 0;
     var i = Int64(i64);
     var bts = i.toBytes();
@@ -159,7 +159,7 @@ class TBinaryProtocol extends TProtocol {
   }
 
   @override
-  void writeString(String s) {
+  void writeString(String? s) {
     var bytes = s != null ? _utf8Codec.encode(s) : Uint8List.fromList([]);
     writeI32(bytes.length);
     transport.write(bytes, 0, bytes.length);
@@ -168,7 +168,7 @@ class TBinaryProtocol extends TProtocol {
   final ByteData _doubleOut = ByteData(8);
 
   @override
-  void writeDouble(double d) {
+  void writeDouble(double? d) {
     if (d == null) d = 0.0;
     _doubleOut.setFloat64(0, d);
     transport.write(_doubleOut.buffer.asUint8List(), 0, 8);

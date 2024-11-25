@@ -29,9 +29,6 @@ void main() {
 
       var factory = TTransportFactory();
 
-      result = await factory.getTransport(transport);
-      expect(result, isNull);
-
       transport = TBufferedTransport();
       result = await factory.getTransport(transport);
 

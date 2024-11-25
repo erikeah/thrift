@@ -28,9 +28,9 @@ void main() {
   group('TFramedTransport partial reads', () {
     final flushAwaitDuration = Duration(seconds: 10);
 
-    FakeReadOnlySocket socket;
+    late FakeReadOnlySocket socket;
     TSocketTransport socketTransport;
-    TFramedTransport transport;
+    late TFramedTransport transport;
     var messageAvailable;
 
     setUp(() {

@@ -35,7 +35,7 @@ class TMessageReader {
     _transport.reset(bytes, byteOffset);
     TProtocol protocol = protocolFactory.getProtocol(_transport);
     TMessage message = protocol.readMessageBegin();
-    _transport.reset(null);
+    _transport.reset(Uint8List(0));
 
     return message;
   }
@@ -43,16 +43,9 @@ class TMessageReader {
 
 /// An internal class used to support [TMessageReader].
 class _TMessageReaderTransport extends TTransport {
-  _TMessageReaderTransport();
-
-  Iterator<int> _readIterator;
+  late Iterator<int> _readIterator;
 
   void reset(Uint8List bytes, [int offset = 0]) {
-    if (bytes == null) {
-      _readIterator = null;
-      return;
-    }
-
     if (offset > bytes.length) {
       throw ArgumentError("The offset exceeds the bytes length");
     }
@@ -75,15 +68,11 @@ class _TMessageReaderTransport extends TTransport {
 
   @override
   int read(Uint8List buffer, int offset, int length) {
-    if (buffer == null) {
-      throw ArgumentError.notNull("buffer");
-    }
-
     if (offset + length > buffer.length) {
       throw ArgumentError("The range exceeds the buffer length");
     }
 
-    if (_readIterator == null || length <= 0) {
+    if (length <= 0) {
       return 0;
     }
 
