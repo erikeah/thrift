@@ -29,16 +29,15 @@ class TFramedTransport extends TBufferedTransport {
   int _receivedHeaderBytes = 0;
 
   int _bodySize = 0;
-  Uint8List _body;
+  Uint8List? _body;
   int _receivedBodyBytes = 0;
 
-  Completer<Uint8List> _frameCompleter;
+  Completer<Uint8List>? _frameCompleter;
 
-  TFramedTransport(TTransport transport) : _transport = transport {
-    if (transport == null) {
-      throw ArgumentError.notNull("transport");
-    }
-  }
+  TFramedTransport(TTransport transport)
+      : _transport = transport,
+        _body = null,
+        _frameCompleter = null;
 
   @override
   bool get isOpen => _transport.isOpen;
@@ -80,7 +79,7 @@ class TFramedTransport extends TBufferedTransport {
   }
 
   bool _readFrameHeader() {
-    var remainingHeaderBytes = headerByteCount - _receivedHeaderBytes;
+    int remainingHeaderBytes = headerByteCount - _receivedHeaderBytes;
 
     int got = _transport.read(
         _headerBytes, _receivedHeaderBytes, remainingHeaderBytes);
@@ -114,8 +113,11 @@ class TFramedTransport extends TBufferedTransport {
 
   void _readFrameBody() {
     var remainingBodyBytes = _bodySize - _receivedBodyBytes;
-
-    int got = _transport.read(_body, _receivedBodyBytes, remainingBodyBytes);
+    if (_body == null) {
+      throw TTransportError(
+          TTransportErrorType.UNKNOWN, "Null is not a valid value to read");
+    }
+    int got = _transport.read(_body!, _receivedBodyBytes, remainingBodyBytes);
     if (got < 0) {
       throw TTransportError(
           TTransportErrorType.UNKNOWN, "Socket closed during frame body read");
@@ -124,7 +126,7 @@ class TFramedTransport extends TBufferedTransport {
     _receivedBodyBytes += got;
 
     if (_receivedBodyBytes == _bodySize) {
-      var body = _body;
+      var body = _body!;
 
       _bodySize = 0;
       _body = null;
@@ -132,7 +134,11 @@ class TFramedTransport extends TBufferedTransport {
 
       _setReadBuffer(body);
 
-      var completer = _frameCompleter;
+      if (_frameCompleter == null) {
+        throw TTransportError(TTransportErrorType.UNKNOWN,
+            "Unexpected Null value, request cannot be satisfied");
+      }
+      Completer<Uint8List> completer = _frameCompleter!;
       _frameCompleter = null;
       completer.complete(Uint8List(0));
     } else {
@@ -154,14 +160,18 @@ class TFramedTransport extends TBufferedTransport {
       _registerForReadableBytes();
     }
 
-    return _frameCompleter.future;
+    return _frameCompleter!.future;
   }
 
   void _registerForReadableBytes() {
     _transport.flush().then((_) {
       _readFrame();
     }).catchError((e) {
-      var completer = _frameCompleter;
+      if (_frameCompleter == null) {
+        throw TTransportError(TTransportErrorType.UNKNOWN,
+            "Unexpected Null value, request cannot be satisfied");
+      }
+      Completer<Uint8List> completer = _frameCompleter!;
 
       _receivedHeaderBytes = 0;
       _bodySize = 0;
